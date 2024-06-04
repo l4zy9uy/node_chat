@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+
+    <!-- Include Bootstrap CSS CDN -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- Include jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+    <!-- Include Popper.js for Bootstrap 4 (optional if using Bootstrap JS features) -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+
+    <!-- Include Bootstrap JS CDN -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <br>
+    <div class="jumbotron">
+        <h1 class="display-4">Send Message</h1>
+        <br>
+        <input id="name" class="form-control" placeholder="Name">
+        <br>
+        <textarea id="message" class="form-control" placeholder="Your Message Here"></textarea>
+        <br>
+        <button id="send" class="btn btn-success">Send</button>
+    </div>
+    <div id="messages"></div>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    var socket = io();
+    $(() => {
+        $("#send").click(() => {
+            sendMessage({
+                name: $("#name").val(),
+                message: $("#message").val()
+            });
+        });
+        getMessages();
+    });
+    socket.on('message', addMessages);
+
+    function addMessages(message) {
+        $("#messages").append(`
+            <h4>${message.name}</h4>
+            <p>${message.message}</p>
+        `);
+    }
+
+    function getMessages() {
+        $.get('http://localhost:8080/messages', (data) => {
+            data.forEach(addMessages);
+        });
+    }
+
+    function sendMessage(message) {
+        $.post('http://localhost:8080/messages', message);
+    }
+</script>
+</body>
+</html>
