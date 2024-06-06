@@ -24,7 +24,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use("/", indexRouter);
 app.use("/users", userRouter);
-app.use("/conversation", conversationRouter);
+app.use("/c", conversationRouter);
 
 app.get('/messages', async (req, res) => {
     try {
