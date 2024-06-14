@@ -34,10 +34,15 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
     var socket = io();
+    let name = "";
+    socket.on('name', (data) => {
+        name = data.name;
+        console.log(name);
+    })
     $(() => {
         $("#send").click(() => {
             sendMessage({
-                name: $("#name").val(),
+                name: name,
                 message: $("#message").val()
             });
         });

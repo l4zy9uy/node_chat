@@ -19,8 +19,6 @@ const userRouter = require('./routes/user');
 const conversationRouter = require('./routes/conversation');
 const authRouter = require('./routes/auth');
 
-const User = require('./models/user');
-
 app.set('view-engine', 'pug');
 app.set("port", port);
 
@@ -29,11 +27,15 @@ app.use(express.static(__dirname));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use(session({
-    secret: 'yourSecretKey',  // This secret key can be any string
-    saveUninitialized: true,
-    resave: false
-}));
+const sessionMiddleware = session({
+    secret: 'your secret',
+    resave: true,
+    saveUninitialized: true
+});
+
+app.use(sessionMiddleware);
+// Share session with io sockets
+io.engine.use(sessionMiddleware);
 app.use(flash());
 app.use((req, res, next) => {
     res.locals.error = req.flash('error');
@@ -70,8 +72,14 @@ async function main() {
     await mongoose.connect(mongoDb);
 }
 
-io.on('connection', () => {
-    console.log('a user is connected');
+io.on('connection', (socket) => {
+    console.log('a user connected');
+    try {
+        let name = socket.request.session.user.name;
+        io.emit('name', { name: name });
+    } catch (e) {
+        console.log(e);
+    }
 });
 
 httpServer.listen(port, () => {

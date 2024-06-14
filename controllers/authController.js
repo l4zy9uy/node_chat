@@ -45,6 +45,8 @@ exports.loginAccount = asyncHandler(async (req, res, next) => {
     try {
         const user = await User.findOne({username: req.body.username, password: req.body.password}).exec();
         if(user !== null) {
+            req.session.user = { id: user._id, name: user.name };
+            console.log(req.session.user.name);
             res.redirect('/');
         }
         else {
@@ -58,6 +60,4 @@ exports.loginAccount = asyncHandler(async (req, res, next) => {
         req.flash('error', 'Login failed due to server error.');
         res.redirect('/login');
     }
-
-    
 });
