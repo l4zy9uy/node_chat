@@ -12,7 +12,6 @@ exports.getMessage = asyncHandler(async (req, res) => {
                 message: message.content
             };
         } else {
-            // Handle case where user is null
             return {
                 name: 'Unknown',
                 message: message.content

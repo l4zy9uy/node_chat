@@ -1,13 +1,15 @@
 const asyncHandler = require("express-async-handler");
-const { body, validationResult } = require("express-validator");
+const {body, validationResult} = require("express-validator");
 const bcrypt = require('bcrypt');
 const User = require("../models/user");
 
 exports.registerForm = asyncHandler(async (req, res, next) => {
     res.render('register.pug');
+    next();
 });
 exports.loginForm = asyncHandler(async (req, res, next) => {
     res.render('login.pug');
+    next();
 });
 
 exports.createAccount = [
@@ -26,8 +28,7 @@ exports.createAccount = [
         if (!errors.isEmpty()) {
             req.flash('error_registration_message', 'Registration failed!');
             res.redirect('/register');
-        }
-        else {
+        } else {
             const user = new User({
                 username: req.body.username,
                 password: req.body.password,
@@ -43,26 +44,26 @@ exports.createAccount = [
 exports.loginAccount = asyncHandler(async (req, res, next) => {
     try {
         const user = await User.findOne({username: req.body.username}).exec();
-        if(user !== null) {
-            const isMatch = await bcrypt.compare(req.body.password, user.password);
-            if(isMatch) {
-                req.session.user = {id: user._id, name: user.name};
-                console.log(req.session.user.name);
-                res.redirect('/');
-            }
-            else {
-                const errMess = 'username or password is incorrect!';
-                console.log(errMess);
-                req.flash('error', 'Username or password is incorrect!');  // Set a flash message by passing the key, followed by the value, to req.flash().
-                res.redirect('/login');
-            }
+
+        if (!user) {
+            const errorMessage = 'Username or password is incorrect!';
+            console.log(errorMessage);
+            req.flash('error', errorMessage);
+            return res.redirect('/login');
         }
-        else {
-            const errMess = 'username or password is incorrect!';
-            console.log(errMess);
-            req.flash('error', 'Username or password is incorrect!');  // Set a flash message by passing the key, followed by the value, to req.flash().
-            res.redirect('/login');
+
+        const isMatch = await bcrypt.compare(req.body.password, user.password);
+
+        if (!isMatch) {
+            const errorMessage = 'Username or password is incorrect!';
+            console.log(errorMessage);
+            req.flash('error', errorMessage);
+            return res.redirect('/login');
         }
+
+        req.session.user = {id: user._id, name: user.name};
+        console.log(req.session.user.name);
+        res.redirect('/');
     } catch (error) {
         console.error('Error during login:', error);
         req.flash('error', 'Login failed due to server error.');

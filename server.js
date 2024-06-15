@@ -3,7 +3,7 @@ const app = express();
 const mongoose = require('mongoose');
 const http = require('http');
 const bodyParser = require('body-parser');
-const { Server: Server } = require('socket.io');
+const {Server: Server} = require('socket.io');
 const httpServer = http.createServer(app);
 const io = new Server(httpServer);
 const logger = require("morgan");
@@ -24,7 +24,7 @@ app.set("port", port);
 app.use(logger("dev"));
 app.use(express.static(__dirname));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use((req, res, next) => {
     req.io = io;
     next();
@@ -37,7 +37,6 @@ const sessionMiddleware = session({
 });
 
 app.use(sessionMiddleware);
-// Share session with io sockets
 io.engine.use(sessionMiddleware);
 app.use(flash());
 app.use((req, res, next) => {
@@ -53,6 +52,7 @@ app.use("/users", userRouter);
 app.use("/messages", messageRouter);
 
 main().catch((err) => console.log(err));
+
 async function main() {
     await mongoose.connect(mongoDb);
 }
@@ -62,7 +62,7 @@ io.on('connection', (socket) => {
     try {
         let user = socket.request.session.user;
         console.log(`user: ${user.id}`);
-        io.emit('user', { user_id: user.id });
+        io.emit('user', {user_id: user.id});
     } catch (e) {
         console.log(e);
     }
