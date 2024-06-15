@@ -14,7 +14,6 @@ const session = require('express-session');
 const flash = require('connect-flash');
 
 const indexRouter = require('./routes/index');
-const userRouter = require('./routes/user');
 const messageRouter = require('./routes/message');
 const authRouter = require('./routes/auth');
 
@@ -48,7 +47,6 @@ app.use((req, res, next) => {
 
 app.use("/", indexRouter);
 app.use("/", authRouter);
-app.use("/users", userRouter);
 app.use("/messages", messageRouter);
 
 main().catch((err) => console.log(err));
