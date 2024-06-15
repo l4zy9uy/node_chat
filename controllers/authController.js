@@ -42,11 +42,20 @@ exports.createAccount = [
     })];
 exports.loginAccount = asyncHandler(async (req, res, next) => {
     try {
-        const user = await User.findOne({username: req.body.username, password: req.body.password}).exec();
+        const user = await User.findOne({username: req.body.username}).exec();
         if(user !== null) {
-            req.session.user = { id: user._id, name: user.name };
-            console.log(req.session.user.name);
-            res.redirect('/');
+            const isMatch = await bcrypt.compare(req.body.password, user.password);
+            if(isMatch) {
+                req.session.user = {id: user._id, name: user.name};
+                console.log(req.session.user.name);
+                res.redirect('/');
+            }
+            else {
+                const errMess = 'username or password is incorrect!';
+                console.log(errMess);
+                req.flash('error', 'Username or password is incorrect!');  // Set a flash message by passing the key, followed by the value, to req.flash().
+                res.redirect('/login');
+            }
         }
         else {
             const errMess = 'username or password is incorrect!';
