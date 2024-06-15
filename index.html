@@ -34,16 +34,24 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
     var socket = io();
-    let name = "";
-    socket.on('name', (data) => {
-        name = data.name;
-        console.log(name);
+    let userId = null
+    socket.on('user', (data) => {
+        userId = data.user_id;
+        //console.log(`user: ${newUser.id}`);
     })
     $(() => {
         $("#send").click(() => {
+            const currentDate = new Date();
+            const datetime = currentDate.getDate() + "/"
+                + (currentDate.getMonth()+1)  + "/"
+                + currentDate.getFullYear() + " @ "
+                + currentDate.getHours() + ":"
+                + currentDate.getMinutes() + ":"
+                + currentDate.getSeconds();
             sendMessage({
-                name: name,
-                message: $("#message").val()
+                userId: userId,
+                message: $("#message").val(),
+                time: datetime
             });
         });
         getMessages();

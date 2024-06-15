@@ -9,15 +9,20 @@ const io = new Server(httpServer);
 const logger = require("morgan");
 require('dotenv').config();
 const mongoDb = process.env.DB_URI;
-const Message = mongoose.model('Message_test', { name: String, message: String });
+//const Message = mongoose.model('Message_test', { name: String, message: String });
 const port = process.env.PORT || "8080";
 const session = require('express-session');
 const flash = require('connect-flash');
 
 const indexRouter = require('./routes/index');
 const userRouter = require('./routes/user');
-const conversationRouter = require('./routes/conversation');
+const messageRouter = require('./routes/message');
 const authRouter = require('./routes/auth');
+
+app.use((req, res, next) => {
+    req.io = io;
+    next();
+});
 
 app.set('view-engine', 'pug');
 app.set("port", port);
@@ -45,9 +50,9 @@ app.use((req, res, next) => {
 app.use("/", indexRouter);
 app.use("/", authRouter);
 app.use("/users", userRouter);
-app.use("/c", conversationRouter);
+app.use("/messages", messageRouter);
 
-app.get('/messages', async (req, res) => {
+/*app.get('/messages', async (req, res) => {
     try {
         const messages = await Message.find({});
         res.send(messages);
@@ -65,7 +70,7 @@ app.post('/messages', async (req, res) => {
     } catch (err) {
         res.sendStatus(500);
     }
-});
+});*/
 
 main().catch((err) => console.log(err));
 async function main() {
@@ -75,8 +80,9 @@ async function main() {
 io.on('connection', (socket) => {
     console.log('a user connected');
     try {
-        let name = socket.request.session.user.name;
-        io.emit('name', { name: name });
+        let user = socket.request.session.user;
+        console.log(`user: ${user.id}`);
+        io.emit('user', { user_id: user.id });
     } catch (e) {
         console.log(e);
     }
