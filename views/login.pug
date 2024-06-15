@@ -1,6 +1,8 @@
 h1 Login
 if error
     div(style='color: red;') #{error}
+if success_message
+    .alert.alert-success #{success_message}
 form(action='/login' method='POST')
     div
         label(for='username') Username:

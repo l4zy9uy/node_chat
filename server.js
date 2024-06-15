@@ -42,6 +42,8 @@ io.engine.use(sessionMiddleware);
 app.use(flash());
 app.use((req, res, next) => {
     res.locals.error = req.flash('error');
+    res.locals.success_message = req.flash('success_message');
+    res.locals.error_registration_message = req.flash('error_registration_message');
     next();
 });
 

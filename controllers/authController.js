@@ -1,14 +1,15 @@
 const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
+const bcrypt = require('bcrypt');
 const User = require("../models/user");
 
 exports.registerForm = asyncHandler(async (req, res, next) => {
     res.render('register.pug');
 });
-
 exports.loginForm = asyncHandler(async (req, res, next) => {
     res.render('login.pug');
 });
+
 exports.createAccount = [
     body("username")
         .isLength({min: 6, max: 32})
@@ -23,23 +24,21 @@ exports.createAccount = [
     asyncHandler(async (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ success: false, errors: errors.array() });
+            req.flash('error_registration_message', 'Registration failed!');
+            res.redirect('/register');
         }
+        else {
+            const user = new User({
+                username: req.body.username,
+                password: req.body.password,
+                name: req.body.name,
+            });
 
-        const user = new User({
-            username: req.body.username,
-            password: req.body.password,
-            name: req.body.name,
-        });
-
-        await user.save();
-
-        try {
             await user.save();
-            res.status(201).json({ success: true, message: "Registration successful" });
-        } catch (error) {
-            res.status(500).json({ success: false, message: "Registration failed" });
+            req.flash('success_message', 'Registration successful!');
+            res.redirect('/login'); // Redirect to the login page or another page
         }
+
     })];
 exports.loginAccount = asyncHandler(async (req, res, next) => {
     try {
