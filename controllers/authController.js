@@ -3,13 +3,11 @@ const {body, validationResult} = require("express-validator");
 const bcrypt = require('bcrypt');
 const User = require("../models/user");
 
-exports.registerForm = asyncHandler(async (req, res, next) => {
+exports.registerForm = asyncHandler(async (req, res) => {
     res.render('register.pug');
-    next();
 });
-exports.loginForm = asyncHandler(async (req, res, next) => {
+exports.loginForm = asyncHandler(async (req, res) => {
     res.render('login.pug');
-    next();
 });
 
 exports.createAccount = [
@@ -25,6 +23,7 @@ exports.createAccount = [
         .escape(),
     asyncHandler(async (req, res, next) => {
         const errors = validationResult(req);
+        console.error(errors);
         if (!errors.isEmpty()) {
             req.flash('error_registration_message', 'Registration failed due to input errors!');
             return res.redirect('/register');

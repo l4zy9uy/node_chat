@@ -19,10 +19,6 @@ const indexRouter = require('./routes/index');
 const messageRouter = require('./routes/message');
 const authRouter = require('./routes/auth');
 
-// Server and Socket.io setup
-const httpServer = http.createServer(app);
-const io = new Server(httpServer);
-
 // View and Static File Setup
 app.set('view-engine', 'pug');
 app.set("port", port);
@@ -33,6 +29,10 @@ app.use(logger("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
+// Server and Socket.io setup
+const httpServer = http.createServer(app);
+const io = new Server(httpServer);
+
 // Session Configuration
 const sessionMiddleware = session({
     secret: 'your secret',
@@ -41,7 +41,6 @@ const sessionMiddleware = session({
 });
 
 app.use(sessionMiddleware);
-io.engine.use(sessionMiddleware);
 
 // Flash Messages
 app.use(flash());
@@ -54,15 +53,18 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use("/", indexRouter);
+//app.use("/", indexRouter);
 app.use("/", authRouter);
 app.use("/messages", messageRouter);
+
 
 main().catch((err) => console.log(err));
 
 async function main() {
     await mongoose.connect(mongoDb);
 }
+
+io.engine.use(sessionMiddleware);
 
 // Socket.io Events
 io.on('connection', (socket) => {

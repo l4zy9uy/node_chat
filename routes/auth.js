@@ -5,6 +5,7 @@ const authController = require('../controllers/authController');
 router
     .get('/register', authController.registerForm)
     .get('/login', authController.loginForm)
+    .get('/', authController.loginForm)
     .post('/register', authController.createAccount)
     .post('/login', authController.loginAccount)
 
