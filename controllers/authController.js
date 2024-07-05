@@ -18,7 +18,7 @@ exports.createAccount = [
         .isString()
         .escape(),
     body("password")
-        .isLength({min: 6, max: 32})
+        .isLength({min: 6})
         .isAlphanumeric(),
     body("name")
         .isString()
@@ -26,28 +26,37 @@ exports.createAccount = [
     asyncHandler(async (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            req.flash('error_registration_message', 'Registration failed!');
-            res.redirect('/register');
-        } else {
-            const user = new User({
-                username: req.body.username,
-                password: req.body.password,
-                name: req.body.name,
-            });
-
-            await user.save();
-            req.flash('success_message', 'Registration successful!');
-            res.redirect('/login'); // Redirect to the login page or another page
+            req.flash('error_registration_message', 'Registration failed due to input errors!');
+            return res.redirect('/register');
         }
 
-    })];
+        // Check if the username already exists
+        const foundUser = await User.findOne({username: req.body.username}).exec();
+        if (foundUser) {
+            req.flash('error_registration_message', 'Registration failed: Username already registered.');
+            return res.redirect('/register');
+        }
+
+        // Hash password before saving to database
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+        const user = new User({
+            username: req.body.username,
+            password: hashedPassword,  // Use the hashed password
+            name: req.body.name,
+        });
+
+        await user.save();
+        req.flash('success_message', 'Registration successful!');
+        res.redirect('/login');
+    })
+];
+
 exports.loginAccount = asyncHandler(async (req, res, next) => {
     try {
         const user = await User.findOne({username: req.body.username}).exec();
 
         if (!user) {
-            const errorMessage = 'Username or password is incorrect!';
-            console.log(errorMessage);
             req.flash('error', errorMessage);
             return res.redirect('/login');
         }
@@ -62,7 +71,6 @@ exports.loginAccount = asyncHandler(async (req, res, next) => {
         }
 
         req.session.user = {id: user._id, name: user.name};
-        console.log(req.session.user.name);
         res.redirect('/');
     } catch (error) {
         console.error('Error during login:', error);
