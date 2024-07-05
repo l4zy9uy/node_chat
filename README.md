@@ -30,10 +30,10 @@ $ npm run devStart
 $ npm run devStart
 ```
 Go to `localhost:8080/login`, you will see web page that is similar with the one below
-![Login](images/Login.png)
+![Login](docs/images/Login.png)
 If I don't have an account, you can sign up at `localhost:8080/register` or click on `Register` button on the login page.
-![Register](images/Register.png)
+![Register](docs/images/Register.png)
 A notification will be sent if you sign up failed.
-![FailedRegistration](images/Failed_Registration.png)
+![FailedRegistration](docs/images/Failed_Registration.png)
 Otherwise, it will like this
-![SuccessfulRegistration](images/Sucessful_Registration.png)
+![SuccessfulRegistration](docs/images/Sucessful_Registration.png)
