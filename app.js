@@ -11,11 +11,12 @@ const port = process.env.PORT || "8080";
 // Routers
 const messageRouter = require('./routes/message');
 const authRouter = require('./routes/auth');
+const channelRouter = require("./routes/channel");
 
 // View and Static File Setup
 app.set('view-engine', 'pug');
 app.set("port", port);
-app.use(express.static(__dirname));
+//app.use(express.static(__dirname));
 
 // Login and Body Parsing
 app.use(logger("dev"));
@@ -48,6 +49,7 @@ app.use((req, res, next) => {
 // Routes
 app.use("/", authRouter);
 app.use("/messages", messageRouter);
+app.use("/channel", channelRouter);
 
 io.engine.use(sessionMiddleware);
 

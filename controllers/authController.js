@@ -7,6 +7,7 @@ exports.registerForm = asyncHandler(async (req, res) => {
     res.render('register.pug');
 });
 exports.loginForm = asyncHandler(async (req, res) => {
+    console.log('Accessing login form');
     res.render('login.pug');
 });
 
@@ -70,7 +71,8 @@ exports.loginAccount = asyncHandler(async (req, res, next) => {
         }
 
         req.session.user = {id: user._id, name: user.name};
-        res.redirect('/');
+        req.session.isAuthenticated = true;
+        res.redirect('/channel');
     } catch (error) {
         console.error('Error during login:', error);
         req.flash('error', 'Login failed due to server error.');
