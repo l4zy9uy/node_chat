@@ -15,7 +15,6 @@ const mongoDb = process.env.DB_URI;
 const port = process.env.PORT || "8080";
 
 //Routers
-const indexRouter = require('./routes/index');
 const messageRouter = require('./routes/message');
 const authRouter = require('./routes/auth');
 
@@ -53,7 +52,6 @@ app.use((req, res, next) => {
 });
 
 // Routes
-//app.use("/", indexRouter);
 app.use("/", authRouter);
 app.use("/messages", messageRouter);
 
