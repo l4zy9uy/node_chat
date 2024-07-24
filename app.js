@@ -7,6 +7,7 @@ const logger = require("morgan");
 const session = require('express-session');
 const flash = require('connect-flash');
 const port = process.env.PORT || "8080";
+const passport = require('passport');
 
 // Routers
 const messageRouter = require('./routes/message');
@@ -35,6 +36,9 @@ const sessionMiddleware = session({
 });
 
 app.use(sessionMiddleware);
+app.use(passport.initialize())
+// init passport on every route call.
+app.use(passport.session())
 
 // Flash Messages
 app.use(flash());

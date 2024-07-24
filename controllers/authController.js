@@ -2,6 +2,9 @@ const asyncHandler = require("express-async-handler");
 const {body, validationResult} = require("express-validator");
 const bcrypt = require('bcrypt');
 const User = require("../models/user");
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+
 
 exports.registerForm = asyncHandler(async (req, res) => {
     res.render('register.pug');
@@ -39,7 +42,7 @@ exports.createAccount = [
 
         // Hash password before saving to database
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
+        console.log("hashed: " + hashedPassword);
         const user = new User({
             username: req.body.username,
             password: hashedPassword,  // Use the hashed password
@@ -60,7 +63,6 @@ exports.loginAccount = asyncHandler(async (req, res, next) => {
             req.flash('error', errorMessage);
             return res.redirect('/login');
         }
-
         const isMatch = await bcrypt.compare(req.body.password, user.password);
 
         if (!isMatch) {
@@ -77,5 +79,42 @@ exports.loginAccount = asyncHandler(async (req, res, next) => {
         console.error('Error during login:', error);
         req.flash('error', 'Login failed due to server error.');
         res.redirect('/login');
+    }
+
+
+});
+
+passport.use(new LocalStrategy(
+    async (username, password, done) => {
+        try {
+            const user = await User.findOne({ username }).exec();
+            if (!user) {
+                return done(null, false, { message: 'Incorrect username.' });
+            }
+
+            console.log("hashed pass in db: " + user.password);
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (!isMatch) {
+                return done(null, false, { message: 'Username or password is incorrect!' });
+            }
+
+            // Here you manually set up the session like in your `loginAccount` function
+            const userSessionDetails = { id: user._id, name: user.name }; // Adapt based on actual user model
+            return done(null, userSessionDetails);
+        } catch (error) {
+            return done(error);
+        }
+    }
+));
+
+passport.serializeUser((user, done) => {
+    done(null, user.id); // Ensure that you serialize the ID only if you want to keep the session small
+});
+
+passport.deserializeUser(async (id, done) => {
+    try {
+        done(null, id);
+    } catch (error) {
+        done(error, null);
     }
 });

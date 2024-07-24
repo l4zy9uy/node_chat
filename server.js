@@ -18,6 +18,8 @@ io.on('connection', (socket) => {
     console.log('a user connected');
     try {
         let user = socket.request.session.user;
+        console.log(socket);
+        console.log(socket.request.user);
         console.log(`user: ${user.id}`);
         io.emit('user', {user_id: user.id});
     } catch (e) {
