@@ -91,8 +91,6 @@ passport.use(new LocalStrategy(
             if (!user) {
                 return done(null, false, { message: 'Incorrect username.' });
             }
-
-            console.log("hashed pass in db: " + user.password);
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
                 return done(null, false, { message: 'Username or password is incorrect!' });
@@ -108,12 +106,12 @@ passport.use(new LocalStrategy(
 ));
 
 passport.serializeUser((user, done) => {
-    done(null, user.id); // Ensure that you serialize the ID only if you want to keep the session small
+    done(null, user);
 });
 
-passport.deserializeUser(async (id, done) => {
+passport.deserializeUser(async (user, done) => {
     try {
-        done(null, id);
+        done(null, user);
     } catch (error) {
         done(error, null);
     }
