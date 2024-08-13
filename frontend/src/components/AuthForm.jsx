@@ -3,6 +3,7 @@ import {useForm} from "react-hook-form";
 import Input from "./Input.jsx";
 import Button from "./Button.jsx";
 import axios from "axios";
+import {toast} from "react-hot-toast";
 
 function AuthForm() {
     const Variant = Object.freeze({
@@ -10,7 +11,7 @@ function AuthForm() {
         REGISTER: 'REGISTER'
     });
 
-    const [authState, setAuthState] = useState(Variant.REGISTER);
+    const [authState, setAuthState] = useState(Variant.LOGIN);
     const [isLoading, setIsLoading] = useState(false);
 
     const toggleAuthState = useCallback(() => {
@@ -39,19 +40,30 @@ function AuthForm() {
     const onSubmit = (data) => {
         console.log("submitted");
         setIsLoading(true);
-        try {
-            if (authState === Variant.REGISTER) {
-                console.log(data);
-                axios.post("http://localhost:8080/register/", data);
-            }
-            // Handle success (optional)
-            console.log("Registration successful");
-        } catch (error) {
-            // Handle error
-            console.error("Error registering:", error);
-        } finally {
-            // Ensure loading state is turned off after the request completes
-            setIsLoading(false);
+        if (authState === Variant.REGISTER) {
+            axios.post("http://localhost:8080/register/", data)
+                .then((res) => {
+                    toast.success("You register successfully");
+                })
+                .catch(() => {
+                    toast.error('Something went wrong!')
+                })
+                .finally(() => {
+                    setIsLoading(false);
+                });
+        }
+        else {
+            axios.post("http://localhost:8080/login", data)
+                .then((res) => {
+                    console.log(res);
+                    toast.success("You are signed in");
+                })
+                .catch(() => {
+                    toast.error("Credentials error");
+                })
+                .finally(() => {
+                    setIsLoading(false);
+                });
         }
     };
     return (<div className="bar">

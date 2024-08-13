@@ -35,15 +35,17 @@ exports.createAccount = [
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             console.log(errors);
+            return res.status(400).json({ errors: errors.array() });/*
             req.flash('error_registration_message', 'Registration failed due to input errors!');
-            return res.redirect('/register');
+            return res.redirect('/register');*/
         }
         console.log("no err");
         const foundUser = await User.findOne({username: req.body.username}).exec();
         if (foundUser) {
             console.log("found");
-            req.flash('error_registration_message', 'Registration failed: Username already registered.');
-            return next(new Error('Validation errors'));
+            /*req.flash('error_registration_message', 'Registration failed: Username already registered.');
+            return next(new Error('Validation errors'));*/
+            return res.status(409).json({ errors: [{ msg: 'Username already registered.' }] });
         }
         console.log(req.body);
         const user = new User({
@@ -74,6 +76,7 @@ passport.use(new LocalStrategy(
                 return done(null, false, {message: 'Username or password is incorrect!'});
             }
             const userSessionDetails = {id: user._id, name: user.name};
+            console.log("signed successfully");
             return done(null, userSessionDetails);
         } catch (error) {
             return done(error);
@@ -88,3 +91,12 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser(async (user, done) => {
     done(null, user);
 });
+
+
+exports.loginAccount =  (req, res) =>  {
+    console.log("login...");
+    console.log(req.user);
+
+    // Authentication successful
+    res.status(200);
+};
