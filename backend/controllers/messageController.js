@@ -9,7 +9,8 @@ exports.getMessage = asyncHandler(async (req, res) => {
         if (message.user) {
             return {
                 name: message.user.name,
-                message: message.content
+                message: message.content,
+                time: message.time
             };
         } else {
             return {
@@ -29,11 +30,7 @@ exports.postMessage = asyncHandler(async (req, res) => {
         time: req.body.time
     });
     await message.save();
-    req.io.emit('message', {name: user.name, message: message.content});
+    //show message immediately after sending successfully
+    req.io.emit('message', {name: user.name, message: message.content, time: message.time});
     res.sendStatus(200);
 });
-
-exports.getRecentConversation = asyncHandler(async (req, res, next) => { });
-exports.getConversationByRoomId = asyncHandler(async (req, res, next) => { });
-exports.markConversationReadByRoomId = asyncHandler(async (req, res, next) => { });
-

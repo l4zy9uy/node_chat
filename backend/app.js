@@ -3,12 +3,12 @@ const app = express();
 const http = require('http');
 const bodyParser = require('body-parser');
 const Server = require('socket.io').Server;
-//const logger = require("morgan");
 const session = require('express-session');
 const flash = require('connect-flash');
 const port = process.env.PORT || "8080";
 const passport = require('passport');
 const winston = require('winston');
+const cors = require('cors');
 
 // Routers
 const messageRouter = require('./routes/message');
@@ -18,10 +18,10 @@ const channelRouter = require("./routes/channel");
 // View and Static File Setup
 app.set('view-engine', 'pug');
 app.set("port", port);
-//app.use(express.static(__dirname));
+app.use(cors());
+app.use(express.static('public'));
 
 // Login and Body Parsing
-//app.use(logger("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
@@ -77,6 +77,11 @@ const logger = winston.createLogger({
         new winston.transports.File({ filename: 'logs/combined.log' }),
         new winston.transports.File({ filename: 'logs/info.log', level: 'info' })
     ]
+});
+
+app.use((err, req, res, next) => {
+    logger.error(err);
+    res.status(500).send('Internal Server Error');
 });
 
 module.exports = {
